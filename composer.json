@@ -10,5 +10,14 @@
     "require": {
     	"zendframework/zend-http" : "^2.5",
    		"ddeboer/data-import": "^0.18.0" 	
-    }
+    },
+    "autoload": {
+        "psr-4": {
+            "ImportJotForm\\": "src/"
+        },
+        "classmap": [
+            "src/",
+            "Module.php"
+        ]
+    },
 }
