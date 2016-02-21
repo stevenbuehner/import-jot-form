@@ -1,0 +1,14 @@
+{
+    "name": "stevenbuehner/import-jot-form",
+    "description": "Importer Package for JotForm-Report-Files in CSV.",
+    "authors": [
+        {
+            "name": "Steven Buehner",
+            "email": "buehner@me.com"
+        }
+    ],
+    "require": {
+    	"zendframework/zend-http" : "^2.5",
+   		"ddeboer/data-import": "^0.18.0" 	
+    }
+}
