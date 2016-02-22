@@ -1,1 +1,6 @@
-Sample, skeleton module for use with the ZF2 MVC layer.
+This is a Reader for the import workflow of ddeboer/data-import.
+The Reader can be instantiated by
+```
+JotFormCsvReportReader('myJotFormUrl', 'optionalPassword');
+
+```
