@@ -8,23 +8,22 @@ use Zend\Http\Request;
 use ImportJotForm\Exception\UnableToRetrieveCsvFile;
 
 class JotFormCsvReportReader extends CsvReader {
-	protected $jotFormId;
+	protected $jotFormUrl;
 	protected $password;
-	protected $jotFormBase = 'https://eu.jotform.com/csv';
 
 	/**
 	 *
-	 * @param string $jotFormReportId        	
+	 * @param string $jotFormUrl        	
 	 * @param string|null $password        	
 	 * @throws UnableToRetrieveCsvFile
 	 */
-	public function __construct($jotFormReportId, $password = null) {
+	public function __construct($jotFormUrl, $password = null) {
 		// My Constructor
-		$this->jotFormId = $jotFormReportId;
+		$this->jotFormUrl = $jotFormUrl;
 		$this->password = $password;
 		
 		// Download CSV-File from jotForm
-		$splFile = $this->downloadCsvFromJotForm ( $jotFormReportId );
+		$splFile = $this->downloadCsvFromJotForm ( $jotFormUrl );
 		
 		// Parent Construct
 		parent::__construct ( $splFile, $delimiter = ',', $enclosure = '"', $escape = "\n" );
@@ -48,21 +47,21 @@ class JotFormCsvReportReader extends CsvReader {
 
 	/**
 	 *
-	 * @param string $jotFormReportId        	
+	 * @param string $jotFormUrl        	
 	 * @throws UnableToRetrieveCsvFile
 	 * @return \SplFileObject
 	 */
-	protected function downloadCsvFromJotForm($jotFormReportId) {
+	protected function downloadCsvFromJotForm($jotFormUrl) {
 		$client = new Client ();
 		
-		$client->setUri ( $this->jotFormBase . '/' . $jotFormReportId );
+		$client->setUri ( $jotFormUrl );
 		$client->setOptions ( array( 
 				'maxredirects' => 2,
 				'timeout' => 30 
 		) );
 		
 		// Set Certification Path when https is used - does not work (yet)
-		if (strpos ( $this->jotFormBase, 'https:' ) === 0) {
+		if (strpos ( $jotFormUrl, 'https:' ) === 0) {
 			$client->setOptions ( array( 
 					// 'sslcapath' => '/etc/ssl/certs',
 					// 'ssltransport' => 'tls',
