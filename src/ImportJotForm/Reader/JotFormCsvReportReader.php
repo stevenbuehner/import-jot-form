@@ -40,9 +40,11 @@ class JotFormCsvReportReader extends CsvReader {
 
 	public function __destruct() {
 		// Remove temporary file
-		$fname = $this->file->getPath () . DIRECTORY_SEPARATOR . $this->file->getFilename ();
-		$this->file = null;
-		unlink ( $fname );
+		if (null !== $this->file) {
+			$fname = $this->file->getPath () . DIRECTORY_SEPARATOR . $this->file->getFilename ();
+			$this->file = null;
+			unlink ( $fname );
+		}
 	}
 
 	/**
