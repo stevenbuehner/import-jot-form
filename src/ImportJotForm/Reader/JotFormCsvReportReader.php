@@ -123,10 +123,8 @@ class JotFormCsvReportReader extends CsvReader {
 		// Replace the headers with the new header name but keep the position ($key) in the array
 		foreach ( $headers as $key => $headerName ) {
 			if (isset ( $incrementedHeaders [$headerName] )) {
-				if (empty ( $headerName )) {
-					$headerName = 'UNKNOWN';
-				}
-				$headers [$key] = $headerName . $incrementedHeaders [$headerName] ++;
+				$prefix = empty ( $headerName ) ? 'UNKNOWN' : '';
+				$headers [$key] = $prefix . $headerName . $incrementedHeaders [$headerName] ++;
 			}
 		}
 		
