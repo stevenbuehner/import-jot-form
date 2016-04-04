@@ -3,9 +3,8 @@
 namespace ImportJotForm\Reader;
 
 use Ddeboer\DataImport\Reader\CsvReader;
-use Zend\Http\Client;
-use Zend\Http\Request;
-use ImportJotForm\Exception\UnableToRetrieveCsvFile;
+use ImportJotForm\Exception\UnableToRetrieveJotFormFile;
+use ImportJotForm\Helper\JotFormDownloadHelper;
 
 class JotFormCsvReportReader extends CsvReader {
 	protected $jotFormUrl;
@@ -22,8 +21,11 @@ class JotFormCsvReportReader extends CsvReader {
 		$this->jotFormUrl = $jotFormUrl;
 		$this->password = $password;
 		
+		$downloadHelper = new JotFormDownloadHelper ();
+		
 		// Download CSV-File from jotForm
-		$splFile = $this->downloadCsvFromJotForm ( $jotFormUrl );
+		$filePath = $downloadHelper->downloadFromJotForm ( $jotFormUrl, $password );
+		$splFile = $downloadHelper->fileNameToSplFile ( $filePath );
 		
 		// Parent Construct
 		parent::__construct ( $splFile, $delimiter = ',', $enclosure = '"', $escape = "\n" );
@@ -36,70 +38,6 @@ class JotFormCsvReportReader extends CsvReader {
 		// Sometimes the CSV-Entry contains a "," at the end and sometimes not
 		// Stupid jotForm
 		$this->setStrict ( false );
-	}
-
-	public function __destruct() {
-		// Remove temporary file
-		if (null !== $this->file) {
-			$fname = $this->file->getPath () . DIRECTORY_SEPARATOR . $this->file->getFilename ();
-			$this->file = null;
-			unlink ( $fname );
-		}
-	}
-
-	/**
-	 *
-	 * @param string $jotFormUrl        	
-	 * @throws UnableToRetrieveCsvFile
-	 * @return \SplFileObject
-	 */
-	protected function downloadCsvFromJotForm($jotFormUrl) {
-		$client = new Client ();
-		
-		$client->setUri ( $jotFormUrl );
-		$client->setOptions ( array( 
-				'maxredirects' => 2,
-				'timeout' => 30 
-		) );
-		
-		// Set Certification Path when https is used - does not work (yet)
-		if (strpos ( $jotFormUrl, 'https:' ) === 0) {
-			$client->setOptions ( array( 
-					// 'sslcapath' => '/etc/ssl/certs',
-					// 'ssltransport' => 'tls',
-					'adapter' => 'Zend\Http\Client\Adapter\Curl',
-					'curloptions' => array( 
-							CURLOPT_FOLLOWLOCATION => TRUE,
-							CURLOPT_SSL_VERIFYPEER => FALSE 
-					) 
-			) );
-		}
-		
-		// will use temp file
-		$client->setStream ();
-		
-		// Password, if set
-		if (! empty ( $this->password )) {
-			$client->setMethod ( Request::METHOD_POST );
-			$client->setParameterPost ( array( 
-					'passKey' => $this->password 
-			) );
-		}
-		
-		$response = $client->send ();
-		
-		if ($response->getStatusCode () != 200) {
-			throw new UnableToRetrieveCsvFile ( 'Wront StatusCode: ' . $response->getStatusCode () . ' (StatusCode=200 expected)' );
-		}
-		// Copy StreamInput
-		$tmpName = tempnam ( '/tmp', 'jotFormReport_' );
-		copy ( $response->getStreamName (), $tmpName );
-		
-		// Add a Newline to the end of the file (because SplFileObject needs a newline)
-		$splFile = new \SplFileObject ( $tmpName, 'a+' );
-		$splFile->fwrite ( PHP_EOL );
-		
-		return $splFile;
 	}
 
 	/**
