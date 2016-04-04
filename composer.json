@@ -8,7 +8,6 @@
         }
     ],
     "require": {
-    	"zendframework/zend-http" : "^2.5",
    		"ddeboer/data-import": "^0.18.0" 	
     },
     "autoload": {
